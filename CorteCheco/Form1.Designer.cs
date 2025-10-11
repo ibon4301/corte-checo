@@ -34,18 +34,19 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(0, 0);
+            label1.Location = new Point(301, 231);
             label1.Name = "label1";
-            label1.Size = new Size(134, 15);
+            label1.Size = new Size(176, 20);
             label1.TabIndex = 0;
-            label1.Text = "TEst porfa que isa lo vea";
+            label1.Text = "Test para que Ibón lo vea";
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(914, 600);
             Controls.Add(label1);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);
