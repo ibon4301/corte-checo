@@ -1,5 +1,7 @@
-using CorteCheco.Datos;
 using System.Data.SqlClient;
+using CorteCheco.Datos;
+using CorteCheco.Logica;
+
 
 namespace CorteCheco
 {
@@ -10,60 +12,51 @@ namespace CorteCheco
             InitializeComponent();
         }
 
+        // En frmLogin.cs, reemplaza tu método btnIngresar_Click con este:
+
         private void btnIngresar_Click(object sender, EventArgs e)
         {
-            // Creamos una instancia de nuestra clase de conexión para usar sus métodos.
-            ConexionDB conexionDB = new ConexionDB();
-            SqlConnection conexion = null; // Inicializamos la conexión como nula para poder usarla en el 'finally'.
+            // 1. Obtenemos los datos de la interfaz.
+            string usuario = txtUsuario.Text;
+            string password = txtPassword.Text;
 
-            try
+            // Una validación básica para no hacer una consulta innecesaria a la DB.
+            if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(password))
             {
-                // Abrimos la conexión usando el método de nuestra clase.
-                conexion = conexionDB.AbrirConexion();
-
-                // Creamos el comando SQL. Es MUY IMPORTANTE usar parámetros (@usuario, @password)
-                // para prevenir un ataque de seguridad llamado "Inyección SQL".
-                string query = "SELECT COUNT(*) FROM Usuarios WHERE NombreUsuario = @usuario AND Password = @password";
-
-                SqlCommand command = new SqlCommand(query, conexion);
-                // Asignamos los valores de los TextBox a los parámetros del query.
-                command.Parameters.AddWithValue("@usuario", txtUsuario.Text);
-                command.Parameters.AddWithValue("@password", txtPassword.Text);
-
-                // ExecuteScalar se usa cuando la consulta devuelve un único valor (en este caso, un número).
-                // Convertimos el resultado a un entero.
-                int count = (int)command.ExecuteScalar();
-
-                if (count > 0)
-                {
-                    // --- LOGIN CORRECTO ---
-                    // El usuario y la contraseña existen en la base de datos.
-                    MessageBox.Show("¡Bienvenido!", "Login Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                else
-                {
-                    // --- LOGIN INCORRECTO ---
-                    // No se encontró ninguna coincidencia.
-                    MessageBox.Show("Usuario o contraseña incorrectos.", "Error de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtPassword.Clear();
-                    txtUsuario.Focus();
-                }
+                MessageBox.Show("Por favor, ingrese usuario y contraseña.", "Campos Vacíos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return; // Salimos del método.
             }
-            catch (Exception ex)
+
+            // 2. Creamos una instancia de nuestra clase de conexión.
+            ConexionDB conexion = new ConexionDB();
+
+            // 3. Declaramos las variables que nuestro método 'ValidarUsuario' nos va a rellenar.
+            string rolDelUsuario;
+            string nombreDelUsuario;
+
+            // 4. Llamamos al método que ahora contiene TODA la lógica de la base de datos.
+            // Fíjate cómo el 'if' ahora es mucho más claro y descriptivo.
+            if (conexion.ValidarUsuario(usuario, password, out rolDelUsuario, out nombreDelUsuario))
             {
-                // Si ocurre cualquier error con la base de datos, lo capturamos y mostramos.
-                MessageBox.Show("Error al conectar con la base de datos: " + ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // --- LOGIN CORRECTO ---
+
+                // 5. Guardamos los datos obtenidos en nuestra clase de sesión estática.
+                SesionUsuario.IniciarSesion(nombreDelUsuario, rolDelUsuario);
+
+                // Mostramos un mensaje de bienvenida personalizado.
+                MessageBox.Show($"¡Bienvenido, {SesionUsuario.NombreUsuario}!", "Login Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Indicamos que el login fue exitoso y cerramos este formulario.
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
-            finally
+            else
             {
-                // El bloque 'finally' se ejecuta SIEMPRE, tanto si hay éxito como si hay error.
-                // Es el lugar perfecto para asegurarnos de que la conexión SIEMPRE se cierre.
-                if (conexion != null)
-                {
-                    conexionDB.CerrarConexion(conexion);
-                }
+                // --- LOGIN INCORRECTO ---
+                // El método ValidarUsuario devolvió 'false'.
+                MessageBox.Show("Usuario o contraseña incorrectos.", "Error de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtPassword.Clear();
+                txtUsuario.Focus();
             }
         }
     }
