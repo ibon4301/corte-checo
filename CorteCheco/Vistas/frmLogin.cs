@@ -1,3 +1,6 @@
+using CorteCheco.Datos;
+using System.Data.SqlClient;
+
 namespace CorteCheco
 {
     public partial class frmLogin : Form
@@ -9,34 +12,58 @@ namespace CorteCheco
 
         private void btnIngresar_Click(object sender, EventArgs e)
         {
-            // Lógica de validación temporal (más adelante la conectaremos a una base de datos)
-            // Leemos el texto de los TextBox y comprobamos si son los correctos.
-            if (txtUsuario.Text == "admin" && txtPassword.Text == "1234")
+            // Creamos una instancia de nuestra clase de conexión para usar sus métodos.
+            ConexionDB conexionDB = new ConexionDB();
+            SqlConnection conexion = null; // Inicializamos la conexión como nula para poder usarla en el 'finally'.
+
+            try
             {
-                // --- SI EL LOGIN ES CORRECTO ---
+                // Abrimos la conexión usando el método de nuestra clase.
+                conexion = conexionDB.AbrirConexion();
 
-                // 1. Le decimos a este formulario que el resultado de su "diálogo" es OK.
-                //    Esta es la señal que nuestro Program.cs está esperando para continuar.
-                this.DialogResult = DialogResult.OK;
+                // Creamos el comando SQL. Es MUY IMPORTANTE usar parámetros (@usuario, @password)
+                // para prevenir un ataque de seguridad llamado "Inyección SQL".
+                string query = "SELECT COUNT(*) FROM Usuarios WHERE NombreUsuario = @usuario AND Password = @password";
 
-                // 2. Cerramos este formulario de login. Al hacerlo, el flujo de ejecución
-                //    vuelve a Program.cs, que verá el resultado "OK" y abrirá frmPrincipal.
-                this.Close();
+                SqlCommand command = new SqlCommand(query, conexion);
+                // Asignamos los valores de los TextBox a los parámetros del query.
+                command.Parameters.AddWithValue("@usuario", txtUsuario.Text);
+                command.Parameters.AddWithValue("@password", txtPassword.Text);
+
+                // ExecuteScalar se usa cuando la consulta devuelve un único valor (en este caso, un número).
+                // Convertimos el resultado a un entero.
+                int count = (int)command.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    // --- LOGIN CORRECTO ---
+                    // El usuario y la contraseña existen en la base de datos.
+                    MessageBox.Show("¡Bienvenido!", "Login Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    // --- LOGIN INCORRECTO ---
+                    // No se encontró ninguna coincidencia.
+                    MessageBox.Show("Usuario o contraseña incorrectos.", "Error de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtPassword.Clear();
+                    txtUsuario.Focus();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // --- SI EL LOGIN ES INCORRECTO ---
-
-                // 1. Mostramos una ventana emergente profesional con un mensaje de error.
-                MessageBox.Show("Usuario o contraseña incorrectos.",
-                                "Error de Autenticación",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
-
-                // 2. Limpiamos el campo de la contraseña
-                //    y ponemos el cursor (foco) de nuevo en el usuario para que lo intente otra vez.
-                txtPassword.Clear();
-                txtUsuario.Focus();
+                // Si ocurre cualquier error con la base de datos, lo capturamos y mostramos.
+                MessageBox.Show("Error al conectar con la base de datos: " + ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // El bloque 'finally' se ejecuta SIEMPRE, tanto si hay éxito como si hay error.
+                // Es el lugar perfecto para asegurarnos de que la conexión SIEMPRE se cierre.
+                if (conexion != null)
+                {
+                    conexionDB.CerrarConexion(conexion);
+                }
             }
         }
     }
