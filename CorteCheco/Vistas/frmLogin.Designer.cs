@@ -135,7 +135,7 @@
             btnIngresar.Size = new Size(180, 45);
             btnIngresar.TabIndex = 3;
             btnIngresar.Text = "INGRESAR";
-            btnIngresar.Click += this.btnIngresar_Click;
+            btnIngresar.Click += btnIngresar_Click;
             // 
             // frmLogin
             // 
@@ -152,6 +152,7 @@
             Name = "frmLogin";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Form1";
+            Load += frmLogin_Load;
             pnlHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             ResumeLayout(false);

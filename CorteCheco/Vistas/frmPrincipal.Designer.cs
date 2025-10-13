@@ -75,9 +75,10 @@
             pnlMenu.Dock = DockStyle.Left;
             pnlMenu.FillColor = Color.FromArgb(45, 45, 48);
             pnlMenu.Location = new Point(0, 0);
+            pnlMenu.Margin = new Padding(3, 2, 3, 2);
             pnlMenu.Name = "pnlMenu";
             pnlMenu.ShadowDecoration.CustomizableEdges = customizableEdges6;
-            pnlMenu.Size = new Size(220, 700);
+            pnlMenu.Size = new Size(192, 525);
             pnlMenu.TabIndex = 0;
             // 
             // btnProductos
@@ -97,12 +98,14 @@
             btnProductos.Image = (Image)resources.GetObject("btnProductos.Image");
             btnProductos.ImageAlign = HorizontalAlignment.Left;
             btnProductos.ImageSize = new Size(28, 28);
-            btnProductos.Location = new Point(0, 60);
+            btnProductos.Location = new Point(0, 45);
+            btnProductos.Margin = new Padding(3, 2, 3, 2);
             btnProductos.Name = "btnProductos";
             btnProductos.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            btnProductos.Size = new Size(220, 50);
+            btnProductos.Size = new Size(192, 38);
             btnProductos.TabIndex = 3;
             btnProductos.Text = "Productos";
+            btnProductos.Click += btnProductos_Click;
             // 
             // guna2PictureBox1
             // 
@@ -112,9 +115,10 @@
             guna2PictureBox1.Image = Properties.Resources.cortechecologo;
             guna2PictureBox1.ImageRotate = 0F;
             guna2PictureBox1.Location = new Point(0, 0);
+            guna2PictureBox1.Margin = new Padding(3, 2, 3, 2);
             guna2PictureBox1.Name = "guna2PictureBox1";
             guna2PictureBox1.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            guna2PictureBox1.Size = new Size(220, 60);
+            guna2PictureBox1.Size = new Size(192, 45);
             guna2PictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             guna2PictureBox1.TabIndex = 2;
             guna2PictureBox1.TabStop = false;
@@ -124,10 +128,11 @@
             pnlContenedor.Controls.Add(pnlHeader);
             pnlContenedor.CustomizableEdges = customizableEdges15;
             pnlContenedor.ForeColor = Color.White;
-            pnlContenedor.Location = new Point(219, 0);
+            pnlContenedor.Location = new Point(192, 0);
+            pnlContenedor.Margin = new Padding(3, 2, 3, 2);
             pnlContenedor.Name = "pnlContenedor";
             pnlContenedor.ShadowDecoration.CustomizableEdges = customizableEdges16;
-            pnlContenedor.Size = new Size(980, 700);
+            pnlContenedor.Size = new Size(858, 525);
             pnlContenedor.TabIndex = 1;
             // 
             // pnlHeader
@@ -139,9 +144,10 @@
             pnlHeader.CustomizableEdges = customizableEdges13;
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
+            pnlHeader.Margin = new Padding(3, 2, 3, 2);
             pnlHeader.Name = "pnlHeader";
             pnlHeader.ShadowDecoration.CustomizableEdges = customizableEdges14;
-            pnlHeader.Size = new Size(980, 60);
+            pnlHeader.Size = new Size(858, 45);
             pnlHeader.TabIndex = 3;
             // 
             // guna2ControlBox3
@@ -151,10 +157,11 @@
             guna2ControlBox3.CustomizableEdges = customizableEdges7;
             guna2ControlBox3.FillColor = Color.FromArgb(139, 152, 166);
             guna2ControlBox3.IconColor = Color.White;
-            guna2ControlBox3.Location = new Point(800, 0);
+            guna2ControlBox3.Location = new Point(700, 0);
+            guna2ControlBox3.Margin = new Padding(3, 2, 3, 2);
             guna2ControlBox3.Name = "guna2ControlBox3";
             guna2ControlBox3.ShadowDecoration.CustomizableEdges = customizableEdges8;
-            guna2ControlBox3.Size = new Size(56, 36);
+            guna2ControlBox3.Size = new Size(49, 27);
             guna2ControlBox3.TabIndex = 2;
             // 
             // guna2ControlBox1
@@ -163,10 +170,11 @@
             guna2ControlBox1.CustomizableEdges = customizableEdges9;
             guna2ControlBox1.FillColor = Color.FromArgb(139, 152, 166);
             guna2ControlBox1.IconColor = Color.White;
-            guna2ControlBox1.Location = new Point(924, 0);
+            guna2ControlBox1.Location = new Point(808, 0);
+            guna2ControlBox1.Margin = new Padding(3, 2, 3, 2);
             guna2ControlBox1.Name = "guna2ControlBox1";
             guna2ControlBox1.ShadowDecoration.CustomizableEdges = customizableEdges10;
-            guna2ControlBox1.Size = new Size(56, 36);
+            guna2ControlBox1.Size = new Size(49, 27);
             guna2ControlBox1.TabIndex = 0;
             // 
             // guna2ControlBox2
@@ -176,22 +184,22 @@
             guna2ControlBox2.CustomizableEdges = customizableEdges11;
             guna2ControlBox2.FillColor = Color.FromArgb(139, 152, 166);
             guna2ControlBox2.IconColor = Color.White;
-            guna2ControlBox2.Location = new Point(862, 0);
+            guna2ControlBox2.Location = new Point(754, 0);
+            guna2ControlBox2.Margin = new Padding(3, 2, 3, 2);
             guna2ControlBox2.Name = "guna2ControlBox2";
             guna2ControlBox2.ShadowDecoration.CustomizableEdges = customizableEdges12;
-            guna2ControlBox2.Size = new Size(56, 36);
+            guna2ControlBox2.Size = new Size(49, 27);
             guna2ControlBox2.TabIndex = 1;
             // 
             // frmPrincipal
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlLight;
-            ClientSize = new Size(1200, 700);
+            ClientSize = new Size(1050, 525);
             Controls.Add(pnlMenu);
             Controls.Add(pnlContenedor);
             FormBorderStyle = FormBorderStyle.None;
-            Margin = new Padding(3, 4, 3, 4);
             Name = "frmPrincipal";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "frmPrincipal";
