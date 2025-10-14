@@ -55,7 +55,20 @@ namespace CorteCheco.Datos
             var listaProductos = new List<Producto>();
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Id, Codigo, Nombre, Descripcion, Precio, Existencias, IdDepartamento FROM Productos";
+                // --- CONSULTA MODIFICADA CON INNER JOIN ---
+                string query = @"
+            SELECT 
+                p.Id, p.Codigo, p.Nombre, p.Descripcion, p.Precio, p.Existencias, p.IdDepartamento,
+                ISNULL(d.Nombre, 'Sin Departamento') AS NombreDepartamento
+            FROM 
+                Productos p
+            LEFT JOIN 
+                Departamentos d ON p.IdDepartamento = d.Id";
+
+                // Nota: Usamos LEFT JOIN en lugar de INNER JOIN. Esto asegura que si un producto
+                // por alguna razón NO tiene un departamento asignado, AÚN APARECERÁ en la lista.
+                // ISNULL() se encarga de mostrar "Sin Departamento" en esos casos.
+
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     try
@@ -73,8 +86,10 @@ namespace CorteCheco.Datos
                                     Descripcion = reader["Descripcion"].ToString(),
                                     Precio = Convert.ToDecimal(reader["Precio"]),
                                     Existencias = Convert.ToInt32(reader["Existencias"]),
-                                    // Leemos el IdDepartamento, manejando posibles nulos.
-                                    IdDepartamento = reader["IdDepartamento"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdDepartamento"])
+                                    IdDepartamento = reader["IdDepartamento"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdDepartamento"]),
+
+                                    // --- LECTURA DEL NUEVO CAMPO ---
+                                    NombreDepartamento = reader["NombreDepartamento"].ToString()
                                 });
                             }
                         }
@@ -194,13 +209,26 @@ namespace CorteCheco.Datos
             }
         }
 
+        // Dentro de tu clase ConexionDB.cs
+
         public List<Producto> BuscarProductos(string terminoBusqueda)
         {
             var listaProductos = new List<Producto>();
             using (var con = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Id, Codigo, Nombre, Descripcion, Precio, Existencias, IdDepartamento FROM Productos " +
-                               "WHERE Nombre LIKE @busqueda OR Codigo LIKE @busqueda";
+                string query = @"
+            SELECT 
+                p.Id, p.Codigo, p.Nombre, p.Descripcion, p.Precio, p.Existencias, p.IdDepartamento,
+                ISNULL(d.Nombre, 'Sin Departamento') AS NombreDepartamento
+            FROM 
+                Productos p
+            LEFT JOIN 
+                Departamentos d ON p.IdDepartamento = d.Id
+            WHERE 
+                p.Nombre LIKE @busqueda OR 
+                p.Codigo LIKE @busqueda OR
+                d.Nombre LIKE @busqueda";
+
                 using (var cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@busqueda", "%" + terminoBusqueda + "%");
@@ -219,7 +247,8 @@ namespace CorteCheco.Datos
                                     Descripcion = reader["Descripcion"].ToString(),
                                     Precio = Convert.ToDecimal(reader["Precio"]),
                                     Existencias = Convert.ToInt32(reader["Existencias"]),
-                                    IdDepartamento = reader["IdDepartamento"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdDepartamento"])
+                                    IdDepartamento = reader["IdDepartamento"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdDepartamento"]),
+                                    NombreDepartamento = reader["NombreDepartamento"].ToString()
                                 });
                             }
                         }
@@ -234,7 +263,7 @@ namespace CorteCheco.Datos
         }
         #endregion
 
-        #region Departamentos (¡NUEVO!)
+        #region Departamentos
         public List<Departamento> GetDepartamentos()
         {
             var departamentos = new List<Departamento>();

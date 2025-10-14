@@ -52,5 +52,10 @@ namespace CorteCheco.Vistas
         {
             AbrirFormularioEnPanel(new frmProductos());
         }
+
+        private void btnDepartamentos_Click(object sender, EventArgs e)
+        {
+            AbrirFormularioEnPanel(new frmDepartamento());
+        }
     }
 }

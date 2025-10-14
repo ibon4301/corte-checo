@@ -9,6 +9,7 @@
         public decimal Precio { get; set; }
         public int Existencias { get; set; }
         public byte[] Imagen { get; set; }
-        public int? IdDepartamento { get; set; } 
+        public int? IdDepartamento { get; set; }
+        public string NombreDepartamento { get; set; }
     }
 }

@@ -21,6 +21,7 @@ namespace CorteCheco.Vistas
             // Al cargar el formulario, lo primero es mostrar los datos.
             CargarDepartamentos();
             ConfigurarDataGridView();
+            ActualizarEstadoBotones();
         }
 
         private void CargarDepartamentos()
@@ -34,18 +35,218 @@ namespace CorteCheco.Vistas
 
         private void ConfigurarDataGridView()
         {
-            // Opcional: Mejorar la apariencia y funcionalidad del DataGridView.
-            dgvDepartamentos.RowHeadersVisible = false; // Ocultar la columna de la izquierda
-            dgvDepartamentos.Columns["Id"].Visible = false; // Ocultar la columna de ID, no es necesaria para el usuario
-            dgvDepartamentos.Columns["Nombre"].HeaderText = "Nombre del Departamento"; // Cambiar título de la columna
-            dgvDepartamentos.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // Hacer que la columna ocupe todo el espacio
 
-            // Estilo visual (opcional pero recomendado)
-            dgvDepartamentos.ThemeStyle.HeaderStyle.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
-            dgvDepartamentos.ThemeStyle.HeaderStyle.ForeColor = System.Drawing.Color.FromArgb(255, 192, 0);
-            dgvDepartamentos.ThemeStyle.RowsStyle.BackColor = System.Drawing.Color.FromArgb(60, 60, 63);
-            dgvDepartamentos.ThemeStyle.RowsStyle.ForeColor = System.Drawing.Color.White;
-            dgvDepartamentos.ThemeStyle.RowsStyle.SelectionBackColor = System.Drawing.Color.FromArgb(80, 80, 85);
         }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            // --- 1. Validación  ---
+            if (string.IsNullOrWhiteSpace(txtNombreDepartamento.Text))
+            {
+                MessageBox.Show("Por favor, ingrese el nombre del departamento.", "Campo Requerido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtNombreDepartamento.Focus();
+                return;
+            }
+
+            // --- 2. Preparación del Objeto  ---
+            Departamento depto = new Departamento
+            {
+                Nombre = txtNombreDepartamento.Text.Trim()
+            };
+
+            bool exito;
+
+            // --- 3. Lógica de Decisión: ¿Crear o Actualizar?  ---
+            if (_deptoSeleccionado == null)
+            {
+                // MODO CREACIÓN
+                exito = _conexionDB.InsertarDepartamento(depto);
+            }
+            else
+            {
+                // MODO EDICIÓN
+                depto.Id = _deptoSeleccionado.Id;
+                exito = _conexionDB.ActualizarDepartamento(depto);
+            }
+
+            // --- 4. Resultado y Actualización de la UI ---
+            if (exito)
+            {
+                MessageBox.Show("Operación completada con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // --- 5. Limpieza y Reset del Formulario ---
+                CargarDepartamentos();      // Refrescamos la lista para ver los cambios.
+
+                // ¡Usamos nuestro método centralizado para limpiar y restablecer todo!
+                ResetearFormulario();
+            }
+        }
+
+        private void btnNuevoDepartamento_Click(object sender, EventArgs e)
+        {
+            CargarDepartamentos();
+
+            pnlEdicion.Visible = true;
+
+            txtNombreDepartamento.Clear();
+
+            txtNombreDepartamento.Focus();
+            dgvDepartamentos.ClearSelection();
+            pnlEdicion.Visible = true;
+
+            _deptoSeleccionado = null;
+            dgvDepartamentos.ClearSelection();
+
+            // 2. Llamamos a nuestro método central en "Modo Creación".
+            ActivarPanelEdicion(esModoEdicion: false);
+        }
+
+        private void btnCancelar_Click(object sender, EventArgs e)
+        {
+
+            dgvDepartamentos.ClearSelection(); // Deseleccionamos cualquier fila.
+            pnlEdicion.Visible = false;
+
+            // 1. Ocultamos el panel de edición.
+            pnlEdicion.Visible = false;
+
+            // 2. Limpiamos el campo de texto.
+            txtNombreDepartamento.Clear();
+            ResetearFormulario();
+        }
+
+        private void dgvDepartamentos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                // 1. Obtenemos los datos de la fila seleccionada.
+                int idDepto = Convert.ToInt32(dgvDepartamentos.Rows[e.RowIndex].Cells["Id"].Value);
+                string nombreDepto = dgvDepartamentos.Rows[e.RowIndex].Cells["Nombre"].Value.ToString();
+
+                // 2. Creamos un objeto Departamento y lo asignamos a _deptoSeleccionado.
+                // ¡Este es el paso que activa el "modo edición"!
+                _deptoSeleccionado = new Departamento { Id = idDepto, Nombre = nombreDepto };
+
+                // 3. Poblamos el formulario con los datos para que el usuario pueda editar.
+                txtNombreDepartamento.Text = nombreDepto;
+
+                // 4. Mostramos el panel de edición.
+                pnlEdicion.Visible = true;
+                txtNombreDepartamento.Focus();
+            }
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            // Primero, verificamos que haya una fila seleccionada en el DataGridView.
+            if (dgvDepartamentos.SelectedRows.Count > 0)
+            {
+                // Obtenemos el ID del departamento de la fila seleccionada.
+                int idAEliminar = Convert.ToInt32(dgvDepartamentos.SelectedRows[0].Cells["Id"].Value);
+                string nombreDepto = dgvDepartamentos.SelectedRows[0].Cells["Nombre"].Value.ToString();
+
+                // Pedimos confirmación al usuario. ¡Esto es vital para una buena UX!
+                var confirmacion = MessageBox.Show($"¿Está seguro de que desea eliminar el departamento '{nombreDepto}'?",
+                                                   "Confirmar Eliminación",
+                                                   MessageBoxButtons.YesNo,
+                                                   MessageBoxIcon.Question);
+
+                if (confirmacion == DialogResult.Yes)
+                {
+                    bool exito = _conexionDB.EliminarDepartamento(idAEliminar);
+
+                    if (exito)
+                    {
+                        MessageBox.Show("Departamento eliminado con éxito.", "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        CargarDepartamentos(); // Refrescamos la tabla.
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Por favor, seleccione el departamento que desea eliminar.", "Ninguna Selección", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void ActualizarEstadoBotones()
+        {
+            // Comprobamos si hay al menos una fila seleccionada.
+            // dgvDepartamentos.SelectedRows.Count es la forma más fiable de saberlo.
+            if (dgvDepartamentos.SelectedRows.Count > 0)
+            {
+                // Si hay selección, habilitamos los botones.
+                btnEditar.Enabled = true;
+                btnEliminar.Enabled = true;
+            }
+            else
+            {
+                // Si no hay selección, los deshabilitamos.
+                btnEditar.Enabled = false;
+                btnEliminar.Enabled = false;
+            }
+        }
+
+        private void frmDepartamento_Load(object sender, EventArgs e)
+        {
+            CargarDepartamentos();
+            btnEditar.Enabled = false;
+            btnEliminar.Enabled = false;
+        }
+
+        private void dgvDepartamentos_SelectionChanged(object sender, EventArgs e)
+        {
+            ActualizarEstadoBotones();
+        }
+
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            // Primero, nos aseguramos de que realmente hay una fila seleccionada.
+            // Aunque el botón debería estar deshabilitado, esta es una buena práctica (defensive coding).
+            if (dgvDepartamentos.SelectedRows.Count > 0)
+            {
+                // 1. Obtenemos los datos de la fila seleccionada.
+                int idDepto = Convert.ToInt32(dgvDepartamentos.SelectedRows[0].Cells["Id"].Value);
+                string nombreDepto = dgvDepartamentos.SelectedRows[0].Cells["Nombre"].Value.ToString();
+
+                // 2. ¡EL PASO CLAVE! Asignamos los datos al objeto _deptoSeleccionado.
+                // Ahora la aplicación "sabe" que estamos editando este departamento específico.
+                _deptoSeleccionado = new Departamento { Id = idDepto, Nombre = nombreDepto };
+
+                // 3. Preparamos y mostramos el panel de edición con los datos cargados.
+                ActivarPanelEdicion(esModoEdicion: true);
+            }
+        }
+
+        private void ActivarPanelEdicion(bool esModoEdicion)
+        {
+            if (esModoEdicion)
+            {
+                // --- Configuración para MODO EDICIÓN ---
+                // Ponemos el nombre del departamento seleccionado en el TextBox.
+                txtNombreDepartamento.Text = _deptoSeleccionado.Nombre;
+                // Cambiamos el texto del botón para que sea más descriptivo.
+                btnGuardar.Text = "Guardar Cambios";
+            }
+            else
+            {
+                // --- Configuración para MODO CREACIÓN ---
+                txtNombreDepartamento.Clear();
+                btnGuardar.Text = "Guardar";
+            }
+
+            // Estas líneas son comunes para ambos modos.
+            pnlEdicion.Visible = true;
+            txtNombreDepartamento.Focus();
+        }
+
+        private void ResetearFormulario()
+        {
+            txtNombreDepartamento.Clear();
+            pnlEdicion.Visible = false;
+            _deptoSeleccionado = null;
+            btnGuardar.Text = "Guardar"; // Restablecemos el texto original del botón.
+            dgvDepartamentos.ClearSelection(); // Esto a su vez llamará a ActualizarEstadoBotones().
+        }
+
     }
 }
