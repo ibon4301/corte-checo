@@ -8,9 +8,8 @@ namespace CorteCheco.Datos
 {
     public class ConexionDB
     {
-        
-        private readonly string _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CorteCheco;Integrated Security=True";
 
+        private readonly string _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CorteChecoDB;Integrated Security=True;Encrypt=False;";
         #region Usuarios
         public bool ValidarUsuario(string usuario, string password, out string rol, out string nombreUsuario)
         {
@@ -50,6 +49,54 @@ namespace CorteCheco.Datos
         #endregion
 
         #region Productos
+
+        public Producto GetProductoPorId(int id)
+        {
+            Producto producto = null;
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                // Usamos la misma consulta JOIN para obtener también el nombre del departamento
+                string query = @"
+            SELECT p.*, ISNULL(d.Nombre, 'Sin Departamento') AS NombreDepartamento
+            FROM Productos p
+            LEFT JOIN Departamentos d ON p.IdDepartamento = d.Id
+            WHERE p.Id = @id";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    try
+                    {
+                        con.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                producto = new Producto
+                                {
+                                    Id = Convert.ToInt32(reader["Id"]),
+                                    Codigo = reader["Codigo"].ToString(),
+                                    Nombre = reader["Nombre"].ToString(),
+                                    Descripcion = reader["Descripcion"].ToString(),
+                                    Precio = Convert.ToDecimal(reader["Precio"]),
+                                    Existencias = Convert.ToInt32(reader["Existencias"]),
+                                    IdDepartamento = reader["IdDepartamento"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["IdDepartamento"]),
+                                    NombreDepartamento = reader["NombreDepartamento"].ToString(),
+                                    // Leemos la imagen directamente
+                                    Imagen = reader["Imagen"] == DBNull.Value ? null : (byte[])reader["Imagen"]
+                                };
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al obtener el producto: " + ex.Message);
+                    }
+                }
+            }
+            return producto;
+        }
+
         public List<Producto> GetProductos()
         {
             var listaProductos = new List<Producto>();
@@ -107,8 +154,10 @@ namespace CorteCheco.Datos
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                string query = "INSERT INTO Productos (Codigo, Nombre, Descripcion, Precio, Existencias, Imagen, IdDepartamento) " +
-                               "VALUES (@codigo, @nombre, @descripcion, @precio, @existencias, @imagen, @idDepartamento)";
+                string query = @"
+            INSERT INTO Productos (Codigo, Nombre, Descripcion, Precio, Existencias, Imagen, IdDepartamento)
+            VALUES (@codigo, @nombre, @descripcion, @precio, @existencias, @imagen, @idDepartamento)";
+
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@codigo", producto.Codigo);
@@ -116,8 +165,11 @@ namespace CorteCheco.Datos
                     cmd.Parameters.AddWithValue("@descripcion", producto.Descripcion);
                     cmd.Parameters.AddWithValue("@precio", producto.Precio);
                     cmd.Parameters.AddWithValue("@existencias", producto.Existencias);
-                    cmd.Parameters.AddWithValue("@imagen", producto.Imagen ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@idDepartamento", producto.IdDepartamento ?? (object)DBNull.Value);
+
+                    // 🔹 Aquí especificamos explícitamente el tipo de dato binario
+                    var imagenParam = cmd.Parameters.Add("@imagen", System.Data.SqlDbType.VarBinary);
+                    imagenParam.Value = (object)producto.Imagen ?? DBNull.Value;
 
                     try
                     {
@@ -137,8 +189,17 @@ namespace CorteCheco.Datos
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                string query = "UPDATE Productos SET Codigo = @codigo, Nombre = @nombre, Descripcion = @descripcion, " +
-                               "Precio = @precio, Existencias = @existencias, Imagen = @imagen, IdDepartamento = @idDepartamento WHERE Id = @id";
+                string query = @"
+            UPDATE Productos
+            SET Codigo = @codigo,
+                Nombre = @nombre,
+                Descripcion = @descripcion,
+                Precio = @precio,
+                Existencias = @existencias,
+                Imagen = @imagen,
+                IdDepartamento = @idDepartamento
+            WHERE Id = @id";
+
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@id", producto.Id);
@@ -147,8 +208,11 @@ namespace CorteCheco.Datos
                     cmd.Parameters.AddWithValue("@descripcion", producto.Descripcion);
                     cmd.Parameters.AddWithValue("@precio", producto.Precio);
                     cmd.Parameters.AddWithValue("@existencias", producto.Existencias);
-                    cmd.Parameters.AddWithValue("@imagen", producto.Imagen ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@idDepartamento", producto.IdDepartamento ?? (object)DBNull.Value);
+
+                    // 🔹 Parche crítico: forzamos el tipo binario
+                    var imagenParam = cmd.Parameters.Add("@imagen", System.Data.SqlDbType.VarBinary);
+                    imagenParam.Value = (object)producto.Imagen ?? DBNull.Value;
 
                     try
                     {
@@ -209,7 +273,42 @@ namespace CorteCheco.Datos
             }
         }
 
-        // Dentro de tu clase ConexionDB.cs
+
+        public List<Departamento> BuscarDepartamentos(string terminoBusqueda)
+        {
+            var departamentos = new List<Departamento>();
+            using (var con = new SqlConnection(_connectionString))
+            {
+                // La consulta busca cualquier departamento cuyo nombre contenga el texto buscado.
+                string query = "SELECT Id, Nombre FROM Departamentos WHERE Nombre LIKE @busqueda ORDER BY Nombre";
+
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    // Usamos parámetros para evitar inyección SQL. Es la forma segura.
+                    cmd.Parameters.AddWithValue("@busqueda", "%" + terminoBusqueda + "%");
+                    try
+                    {
+                        con.Open();
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                departamentos.Add(new Departamento
+                                {
+                                    Id = Convert.ToInt32(reader["Id"]),
+                                    Nombre = reader["Nombre"].ToString()
+                                });
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al buscar departamentos: " + ex.Message);
+                    }
+                }
+            }
+            return departamentos;
+        }
 
         public List<Producto> BuscarProductos(string terminoBusqueda)
         {

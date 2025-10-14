@@ -12,25 +12,41 @@ namespace CorteCheco.Vistas
 {
     public partial class frmProductos : Form
     {
-        // Variable a nivel de clase para "recordar" la imagen original durante la edición.
+        // Usamos una única instancia de ConexionDB para todo el formulario.
         private readonly ConexionDB _conexionDB = new ConexionDB();
-        private byte[] imagenOriginal = null;
+
+        // Esta variable "recuerda" qué producto estamos editando. Si es null, estamos creando uno nuevo.
+        private Producto _productoSeleccionado = null;
 
         public frmProductos()
         {
             InitializeComponent();
         }
 
-        #region Eventos Principales del Formulario
+        #region Eventos Principales y de Carga
 
         private void frmProductos_Load(object sender, EventArgs e)
         {
-            // Configuramos el estado inicial de la interfaz.
+            // Estado inicial de la interfaz.
             pnlDetalles.Visible = false;
-            btnEditar.Enabled = false;
-            btnEliminar.Enabled = false;
             CargarProductos();
             CargarComboDepartamentos();
+            // Los botones se deshabilitan a través del evento SelectionChanged que se dispara al cargar.
+        }
+
+        private void dgvProductos_SelectionChanged(object sender, EventArgs e)
+        {
+            // Este es el ÚNICO lugar que controla la habilitación de los botones de edición/eliminación.
+            if (dgvProductos.SelectedRows.Count > 0)
+            {
+                btnEditar.Enabled = true;
+                btnEliminar.Enabled = true;
+            }
+            else
+            {
+                btnEditar.Enabled = false;
+                btnEliminar.Enabled = false;
+            }
         }
 
         #endregion
@@ -40,67 +56,29 @@ namespace CorteCheco.Vistas
         private void CargarComboDepartamentos()
         {
             cmbDepartamento.DataSource = _conexionDB.GetDepartamentos();
-            cmbDepartamento.DisplayMember = "Nombre"; // Lo que el usuario ve
-            cmbDepartamento.ValueMember = "Id";       // El valor que usamos internamente
-            cmbDepartamento.SelectedIndex = -1;       // Empieza sin nada seleccionado
+            cmbDepartamento.DisplayMember = "Nombre";
+            cmbDepartamento.ValueMember = "Id";
+            cmbDepartamento.SelectedIndex = -1;
         }
 
         private void CargarProductos()
         {
-            // 1. Obtenemos los datos y los asignamos a la tabla.
+            dgvProductos.DataSource = null; // Reseteo para asegurar la recarga correcta.
             dgvProductos.DataSource = new BindingList<Producto>(_conexionDB.GetProductos());
-
-            // 2. Llamamos a nuestro método central para que aplique todo el formato.
             ConfigurarColumnasDGV();
         }
 
-        private void CargarDetallesProducto()
+        private void ConfigurarColumnasDGV()
         {
-            if (dgvProductos.SelectedRows.Count > 0)
+            if (dgvProductos.Columns.Count > 0)
             {
-                DataGridViewRow row = dgvProductos.SelectedRows[0];
+                if (dgvProductos.Columns.Contains("Id")) { dgvProductos.Columns["Id"].Visible = false; }
+                if (dgvProductos.Columns.Contains("Imagen")) { dgvProductos.Columns["Imagen"].Visible = false; }
+                if (dgvProductos.Columns.Contains("IdDepartamento")) { dgvProductos.Columns["IdDepartamento"].Visible = false; }
 
-                txtCodigo.Text = row.Cells["Codigo"].Value.ToString();
-                txtNombre.Text = row.Cells["Nombre"].Value.ToString();
-                txtDescripcion.Text = row.Cells["Descripcion"].Value.ToString();
-                txtPrecio.Text = row.Cells["Precio"].Value.ToString();
-                txtExistencias.Text = row.Cells["Existencias"].Value.ToString();
-
-                // --- AQUÍ ESTÁ LA CORRECCIÓN ---
-
-                // 1. Obtenemos el valor de la celda en una variable temporal.
-                object idDeptoValue = row.Cells["IdDepartamento"].Value;
-
-                // 2. Comprobamos si el valor es nulo o DBNull.Value.
-                if (idDeptoValue != DBNull.Value && idDeptoValue != null)
+                if (dgvProductos.Columns.Contains("NombreDepartamento"))
                 {
-                    // Si SÍ tiene un valor, lo asignamos.
-                    cmbDepartamento.SelectedValue = Convert.ToInt32(idDeptoValue);
-                }
-                else
-                {
-                    // Si es NULO, le decimos al ComboBox que no seleccione nada.
-                    cmbDepartamento.SelectedIndex = -1;
-                }
-
-
-                int idProducto = Convert.ToInt32(row.Cells["Id"].Value);
-                pnlDetalles.Tag = idProducto;
-
-                // Cargamos la imagen y la guardamos en nuestra variable de respaldo.
-                byte[] imagenBytes = _conexionDB.GetImagenProductoPorId(idProducto); // Usando _conexionDB
-                imagenOriginal = imagenBytes;
-
-                if (imagenBytes != null)
-                {
-                    using (MemoryStream ms = new MemoryStream(imagenBytes))
-                    {
-                        picProducto.Image = new Bitmap(Image.FromStream(ms));
-                    }
-                }
-                else
-                {
-                    picProducto.Image = null;
+                    dgvProductos.Columns["NombreDepartamento"].HeaderText = "Departamento";
                 }
             }
         }
@@ -108,8 +86,7 @@ namespace CorteCheco.Vistas
         private void LimpiarYResetearPanel()
         {
             pnlDetalles.Visible = false;
-            pnlDetalles.Tag = null;
-            imagenOriginal = null;
+            _productoSeleccionado = null; // ¡Crucial! Reseteamos el estado a "Modo Creación".
 
             txtCodigo.Clear();
             txtNombre.Clear();
@@ -117,11 +94,9 @@ namespace CorteCheco.Vistas
             txtPrecio.Clear();
             txtExistencias.Clear();
             picProducto.Image = null;
-            cmbDepartamento.SelectedIndex = -1; 
+            cmbDepartamento.SelectedIndex = -1;
 
-            dgvProductos.ClearSelection();
-            btnEditar.Enabled = false;
-            btnEliminar.Enabled = false;
+            dgvProductos.ClearSelection(); // Esto dispara SelectionChanged y deshabilita los botones.
             btnGuardar.Text = "Guardar";
         }
 
@@ -131,7 +106,7 @@ namespace CorteCheco.Vistas
 
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            LimpiarYResetearPanel(); // Usamos el método centralizado.
+            LimpiarYResetearPanel();
             pnlDetalles.Visible = true;
             txtCodigo.Focus();
         }
@@ -140,13 +115,45 @@ namespace CorteCheco.Vistas
         {
             if (dgvProductos.SelectedRows.Count > 0)
             {
-                CargarDetallesProducto();
-                pnlDetalles.Visible = true;
-                btnGuardar.Text = "Guardar Cambios";
-            }
-            else
-            {
-                MessageBox.Show("Por favor, seleccione un producto de la lista para editar.", "Sin Selección", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Obtenemos el ID de la fila seleccionada.
+                int idProducto = Convert.ToInt32(dgvProductos.SelectedRows[0].Cells["Id"].Value);
+
+                // Obtenemos el objeto completo desde la base de datos.
+                _productoSeleccionado = _conexionDB.GetProductoPorId(idProducto);
+
+                if (_productoSeleccionado != null)
+                {
+                    // Llenamos el panel con los datos del objeto.
+                    txtCodigo.Text = _productoSeleccionado.Codigo;
+                    txtNombre.Text = _productoSeleccionado.Nombre;
+                    txtDescripcion.Text = _productoSeleccionado.Descripcion;
+                    txtPrecio.Text = _productoSeleccionado.Precio.ToString("F2"); // Formato con 2 decimales.
+                    txtExistencias.Text = _productoSeleccionado.Existencias.ToString();
+
+                    if (_productoSeleccionado.IdDepartamento.HasValue)
+                    {
+                        cmbDepartamento.SelectedValue = _productoSeleccionado.IdDepartamento.Value;
+                    }
+                    else
+                    {
+                        cmbDepartamento.SelectedIndex = -1;
+                    }
+
+                    if (_productoSeleccionado.Imagen != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream(_productoSeleccionado.Imagen))
+                        {
+                            picProducto.Image = Image.FromStream(ms);
+                        }
+                    }
+                    else
+                    {
+                        picProducto.Image = null;
+                    }
+
+                    pnlDetalles.Visible = true;
+                    btnGuardar.Text = "Guardar Cambios";
+                }
             }
         }
 
@@ -159,7 +166,7 @@ namespace CorteCheco.Vistas
         {
             try
             {
-                // Validaciones de datos de entrada.
+                // 1. VALIDACIÓN
                 if (string.IsNullOrWhiteSpace(txtNombre.Text) || string.IsNullOrWhiteSpace(txtCodigo.Text))
                 {
                     MessageBox.Show("El código y el nombre son campos obligatorios.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -170,55 +177,76 @@ namespace CorteCheco.Vistas
                     MessageBox.Show("El precio y las existencias deben ser números válidos.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
-                // --- NUEVA VALIDACIÓN PARA EL DEPARTAMENTO ---
                 if (cmbDepartamento.SelectedValue == null)
                 {
                     MessageBox.Show("Debe seleccionar un departamento.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Lógica de imagen inteligente (ya la tienes y es perfecta).
+                // 2. PREPARACIÓN DE IMAGEN
                 byte[] imagenParaGuardar = null;
                 if (picProducto.Image != null)
                 {
-                    using (MemoryStream ms = new MemoryStream())
+                    using (var ms = new MemoryStream())
+                    using (var bmp = new Bitmap(picProducto.Image)) // <- CLONAMOS LA IMAGEN
                     {
-                        picProducto.Image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
                         imagenParaGuardar = ms.ToArray();
                     }
                 }
-                else if (pnlDetalles.Tag != null && imagenOriginal != null)
-                {
-                    imagenParaGuardar = imagenOriginal;
-                }
 
-                // Creamos el objeto Producto con todos los datos.
-                Producto producto = new Producto
-                {
-                    Codigo = txtCodigo.Text,
-                    Nombre = txtNombre.Text,
-                    Descripcion = txtDescripcion.Text,
-                    Precio = precio,
-                    Existencias = existencias,
-                    Imagen = imagenParaGuardar,
-
-                    // --- LÍNEA MODIFICADA PARA OBTENER EL ID DEL COMBOBOX ---
-                    IdDepartamento = Convert.ToInt32(cmbDepartamento.SelectedValue)
-                };
 
                 bool exito;
 
-                if (pnlDetalles.Tag == null) // Es un INSERT
+                // 3. DECISIÓN: CREAR O EDITAR
+                if (_productoSeleccionado == null) // MODO CREACIÓN
                 {
-                    exito = _conexionDB.InsertarProducto(producto);
+                    Producto productoNuevo = new Producto
+                    {
+                        Codigo = txtCodigo.Text.Trim(),
+                        Nombre = txtNombre.Text.Trim(),
+                        Descripcion = txtDescripcion.Text.Trim(),
+                        Precio = precio,
+                        Existencias = existencias,
+                        IdDepartamento = Convert.ToInt32(cmbDepartamento.SelectedValue),
+                        Imagen = imagenParaGuardar
+                    };
+                    exito = _conexionDB.InsertarProducto(productoNuevo);
                 }
-                else // Es un UPDATE
+                else // MODO EDICIÓN
                 {
-                    producto.Id = Convert.ToInt32(pnlDetalles.Tag);
-                    exito = _conexionDB.ActualizarProducto(producto);
+                    _productoSeleccionado.Codigo = txtCodigo.Text.Trim();
+                    _productoSeleccionado.Nombre = txtNombre.Text.Trim();
+                    _productoSeleccionado.Descripcion = txtDescripcion.Text.Trim();
+                    _productoSeleccionado.Precio = precio;
+                    _productoSeleccionado.Existencias = existencias;
+                    _productoSeleccionado.IdDepartamento = Convert.ToInt32(cmbDepartamento.SelectedValue);
+
+                    if (imagenParaGuardar != null)
+                    {
+                        // Se eligió una nueva imagen: la guardamos.
+                        _productoSeleccionado.Imagen = imagenParaGuardar;
+                    }
+                    else if (picProducto.Image == null)
+                    {
+                        // El usuario eliminó la imagen (PictureBox vacío): la quitamos de BD.
+                        _productoSeleccionado.Imagen = null;
+                    }
+                    else if (_productoSeleccionado.Imagen == null && picProducto.Image != null)
+                    {
+                        using (var ms = new MemoryStream())
+                        using (var bmp = new Bitmap(picProducto.Image)) 
+                        {
+                            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            _productoSeleccionado.Imagen = ms.ToArray();
+                        }
+                    }
+
+
+                    exito = _conexionDB.ActualizarProducto(_productoSeleccionado);
                 }
 
+                // 4. RESULTADO Y LIMPIEZA
                 if (exito)
                 {
                     MessageBox.Show("Operación realizada con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -232,7 +260,7 @@ namespace CorteCheco.Vistas
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ocurrió un error: " + ex.Message, "Error Crítico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ocurrió un error crítico: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -245,12 +273,11 @@ namespace CorteCheco.Vistas
                 DialogResult confirmacion = MessageBox.Show($"¿Está seguro de que desea eliminar el producto '{nombreProducto}'?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (confirmacion == DialogResult.Yes)
                 {
-                    ConexionDB conexionDB = new ConexionDB();
-                    if (conexionDB.EliminarProducto(idProducto))
+                    if (_conexionDB.EliminarProducto(idProducto))
                     {
                         MessageBox.Show("Producto eliminado con éxito.");
                         CargarProductos();
-                        LimpiarYResetearPanel();
+                        // LimpiarYResetearPanel se llama implícitamente al limpiar la selección.
                     }
                     else
                     {
@@ -258,34 +285,24 @@ namespace CorteCheco.Vistas
                     }
                 }
             }
-            else
-            {
-                MessageBox.Show("Por favor, seleccione un producto para eliminar.");
-            }
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
         {
-            // 1. Obtenemos el término de búsqueda de forma segura, eliminando espacios.
             string terminoBusqueda = txtBuscar.Text.Trim();
             List<Producto> resultados;
 
-            // 2. Decidimos si buscar o si el usuario quiere ver todos los productos de nuevo.
             if (string.IsNullOrWhiteSpace(terminoBusqueda))
             {
-                // Si la barra de búsqueda está vacía, obtenemos la lista completa de productos.
                 resultados = _conexionDB.GetProductos();
             }
             else
             {
-                // Si hay texto, llamamos al método de búsqueda específico.
                 resultados = _conexionDB.BuscarProductos(terminoBusqueda);
             }
 
-            // 3. Asignamos la lista de resultados (ya sea completa o filtrada) al DataGridView.
+            dgvProductos.DataSource = null; // Reseteo.
             dgvProductos.DataSource = new BindingList<Producto>(resultados);
-
-            //    Esto asegura que la tabla se vea igual tanto en la carga inicial como después de una búsqueda.
             ConfigurarColumnasDGV();
         }
 
@@ -300,44 +317,28 @@ namespace CorteCheco.Vistas
 
         private void picProducto_Click(object sender, EventArgs e)
         {
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Archivos de Imagen|*.jpg;*.jpeg;*.png;*.gif;*.bmp";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                using (var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
+                try
                 {
-                    picProducto.Image = Image.FromStream(stream);
+                    // Creamos una copia de la imagen en memoria para evitar bloqueos de archivo.
+                    // Esto es mucho más seguro que cargar directamente desde el FileStream.
+                    using (var bmpTemp = new Bitmap(openFileDialog.FileName))
+                    {
+                        picProducto.Image = new Bitmap(bmpTemp);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al cargar la imagen: " + ex.Message, "Error de Archivo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private void dgvProductos_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                CargarDetallesProducto();
-                btnEditar.Enabled = true;
-                btnEliminar.Enabled = true;
-                pnlDetalles.Visible = true;
-                btnGuardar.Text = "Guardar Cambios";
-            }
-        }
-
-
-        private void ConfigurarColumnasDGV()
-        {
-            // Ocultamos las columnas que el usuario no necesita ver.
-            if (dgvProductos.Columns.Contains("Id")) { dgvProductos.Columns["Id"].Visible = false; }
-            if (dgvProductos.Columns.Contains("Imagen")) { dgvProductos.Columns["Imagen"].Visible = false; }
-            if (dgvProductos.Columns.Contains("IdDepartamento")) { dgvProductos.Columns["IdDepartamento"].Visible = false; }
-
-            // Nos aseguramos de que la columna con el nombre del departamento sea visible y tenga un buen encabezado.
-            if (dgvProductos.Columns.Contains("NombreDepartamento"))
-            {
-                dgvProductos.Columns["NombreDepartamento"].HeaderText = "Departamento";
-            }
-        }
         #endregion
     }
 }

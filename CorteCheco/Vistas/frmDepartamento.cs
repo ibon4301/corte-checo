@@ -26,16 +26,38 @@ namespace CorteCheco.Vistas
 
         private void CargarDepartamentos()
         {
-            // Obtenemos la lista de departamentos desde la base de datos.
-            List<Departamento> listaDepartamentos = _conexionDB.GetDepartamentos();
+            dgvDepartamentos.DataSource = null;
 
-            // Asignamos la lista como fuente de datos para el DataGridView.
-            dgvDepartamentos.DataSource = listaDepartamentos;
+            // Asignamos la lista de departamentos. Como AutoGenerateColumns es True,
+            // se crearán las columnas 'Id' y 'Nombre' automáticamente.
+            dgvDepartamentos.DataSource = _conexionDB.GetDepartamentos();
+
+            // Ahora que las columnas existen, las configuramos.
+            ConfigurarDataGridView();
         }
 
         private void ConfigurarDataGridView()
         {
+            // Solo procedemos si la tabla tiene columnas.
+            if (dgvDepartamentos.Columns.Count > 0)
+            {
+                // Nos aseguramos de que la columna 'Id' sea visible y tenga un buen encabezado.
+                if (dgvDepartamentos.Columns.Contains("Id"))
+                {
+                    dgvDepartamentos.Columns["Id"].Visible = true;
+                    dgvDepartamentos.Columns["Id"].HeaderText = "ID";
+                    // Damos un tamaño fijo al ID para que no ocupe mucho espacio.
+                    dgvDepartamentos.Columns["Id"].Width = 60;
+                }
 
+                // Configuramos la columna 'Nombre'.
+                if (dgvDepartamentos.Columns.Contains("Nombre"))
+                {
+                    dgvDepartamentos.Columns["Nombre"].HeaderText = "Nombre del Departamento";
+                    // Hacemos que la columna de nombre rellene el resto del espacio.
+                    dgvDepartamentos.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                }
+            }
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -248,5 +270,37 @@ namespace CorteCheco.Vistas
             dgvDepartamentos.ClearSelection(); // Esto a su vez llamará a ActualizarEstadoBotones().
         }
 
+        private void btnBuscarDepto_Click(object sender, EventArgs e)
+        {
+            string terminoBusqueda = txtBuscarDepto.Text.Trim();
+            List<Departamento> resultados;
+
+            if (string.IsNullOrWhiteSpace(terminoBusqueda))
+            {
+                resultados = _conexionDB.GetDepartamentos();
+            }
+            else
+            {
+                resultados = _conexionDB.BuscarDepartamentos(terminoBusqueda);
+            }
+
+            // El truco para evitar el error: resetea el DataSource ANTES de reasignarlo.
+            dgvDepartamentos.DataSource = null;
+            dgvDepartamentos.DataSource = resultados;
+
+            // Reaplicamos el formato a las columnas recién generadas.
+            ConfigurarDataGridView();
+        }
+
+        private void txtBuscarDepto_KeyDown(object sender, KeyEventArgs e)
+        {
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnBuscarDepto_Click(this, new EventArgs());
+                e.SuppressKeyPress = true;
+            }
+        }
     }
+
 }

@@ -45,6 +45,8 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges31 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges32 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges14 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges15 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges16 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges17 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
@@ -61,8 +63,6 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges28 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges29 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges30 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges14 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             dgvProductos = new DataGridView();
             guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
             btnEditar = new Guna.UI2.WinForms.Guna2Button();
@@ -71,6 +71,7 @@
             btnBuscar = new Guna.UI2.WinForms.Guna2Button();
             btnNuevo = new Guna.UI2.WinForms.Guna2Button();
             pnlDetalles = new Guna.UI2.WinForms.Guna2Panel();
+            cmbDepartamento = new Guna.UI2.WinForms.Guna2ComboBox();
             txtExistencias = new Guna.UI2.WinForms.Guna2TextBox();
             btnCancelar = new Guna.UI2.WinForms.Guna2Button();
             btnGuardar = new Guna.UI2.WinForms.Guna2Button();
@@ -79,7 +80,6 @@
             txtDescripcion = new Guna.UI2.WinForms.Guna2TextBox();
             txtNombre = new Guna.UI2.WinForms.Guna2TextBox();
             txtCodigo = new Guna.UI2.WinForms.Guna2TextBox();
-            cmbDepartamento = new Guna.UI2.WinForms.Guna2ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             guna2Panel1.SuspendLayout();
             pnlDetalles.SuspendLayout();
@@ -118,7 +118,7 @@
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProductos.Size = new Size(500, 390);
             dgvProductos.TabIndex = 0;
-            dgvProductos.CellClick += dgvProductos_CellClick;
+            dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
             // 
             // guna2Panel1
             // 
@@ -252,6 +252,23 @@
             pnlDetalles.Size = new Size(300, 390);
             pnlDetalles.TabIndex = 3;
             pnlDetalles.Visible = false;
+            // 
+            // cmbDepartamento
+            // 
+            cmbDepartamento.BackColor = Color.Transparent;
+            cmbDepartamento.CustomizableEdges = customizableEdges13;
+            cmbDepartamento.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbDepartamento.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDepartamento.FocusedColor = Color.FromArgb(94, 148, 255);
+            cmbDepartamento.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
+            cmbDepartamento.Font = new Font("Segoe UI", 10F);
+            cmbDepartamento.ForeColor = Color.FromArgb(68, 88, 112);
+            cmbDepartamento.ItemHeight = 30;
+            cmbDepartamento.Location = new Point(161, 90);
+            cmbDepartamento.Name = "cmbDepartamento";
+            cmbDepartamento.ShadowDecoration.CustomizableEdges = customizableEdges14;
+            cmbDepartamento.Size = new Size(132, 36);
+            cmbDepartamento.TabIndex = 9;
             // 
             // txtExistencias
             // 
@@ -398,23 +415,6 @@
             txtCodigo.ShadowDecoration.CustomizableEdges = customizableEdges30;
             txtCodigo.Size = new Size(132, 36);
             txtCodigo.TabIndex = 0;
-            // 
-            // cmbDepartamento
-            // 
-            cmbDepartamento.BackColor = Color.Transparent;
-            cmbDepartamento.CustomizableEdges = customizableEdges13;
-            cmbDepartamento.DrawMode = DrawMode.OwnerDrawFixed;
-            cmbDepartamento.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbDepartamento.FocusedColor = Color.FromArgb(94, 148, 255);
-            cmbDepartamento.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
-            cmbDepartamento.Font = new Font("Segoe UI", 10F);
-            cmbDepartamento.ForeColor = Color.FromArgb(68, 88, 112);
-            cmbDepartamento.ItemHeight = 30;
-            cmbDepartamento.Location = new Point(161, 90);
-            cmbDepartamento.Name = "cmbDepartamento";
-            cmbDepartamento.ShadowDecoration.CustomizableEdges = customizableEdges14;
-            cmbDepartamento.Size = new Size(132, 36);
-            cmbDepartamento.TabIndex = 9;
             // 
             // frmProductos
             // 

@@ -57,8 +57,8 @@
             guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
             btnEditar = new Guna.UI2.WinForms.Guna2Button();
             btnEliminar = new Guna.UI2.WinForms.Guna2Button();
-            txtBuscar = new Guna.UI2.WinForms.Guna2TextBox();
-            btnBuscar = new Guna.UI2.WinForms.Guna2Button();
+            txtBuscarDepto = new Guna.UI2.WinForms.Guna2TextBox();
+            btnBuscarDepto = new Guna.UI2.WinForms.Guna2Button();
             btnNuevoDepartamento = new Guna.UI2.WinForms.Guna2Button();
             pnlEdicion = new Guna.UI2.WinForms.Guna2Panel();
             btnCancelar = new Guna.UI2.WinForms.Guna2Button();
@@ -85,8 +85,8 @@
             guna2Panel1.BackColor = SystemColors.Control;
             guna2Panel1.Controls.Add(btnEditar);
             guna2Panel1.Controls.Add(btnEliminar);
-            guna2Panel1.Controls.Add(txtBuscar);
-            guna2Panel1.Controls.Add(btnBuscar);
+            guna2Panel1.Controls.Add(txtBuscarDepto);
+            guna2Panel1.Controls.Add(btnBuscarDepto);
             guna2Panel1.Controls.Add(btnNuevoDepartamento);
             guna2Panel1.CustomizableEdges = customizableEdges19;
             guna2Panel1.Dock = DockStyle.Top;
@@ -135,43 +135,45 @@
             btnEliminar.TabIndex = 3;
             btnEliminar.Click += btnEliminar_Click;
             // 
-            // txtBuscar
+            // txtBuscarDepto
             // 
-            txtBuscar.CustomizableEdges = customizableEdges13;
-            txtBuscar.DefaultText = "";
-            txtBuscar.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
-            txtBuscar.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
-            txtBuscar.DisabledState.ForeColor = Color.FromArgb(138, 138, 138);
-            txtBuscar.DisabledState.PlaceholderForeColor = Color.FromArgb(138, 138, 138);
-            txtBuscar.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
-            txtBuscar.Font = new Font("Segoe UI", 9F);
-            txtBuscar.HoverState.BorderColor = Color.FromArgb(94, 148, 255);
-            txtBuscar.Location = new Point(407, 12);
-            txtBuscar.Name = "txtBuscar";
-            txtBuscar.PlaceholderText = "Buscar por nombre...";
-            txtBuscar.SelectedText = "";
-            txtBuscar.ShadowDecoration.CustomizableEdges = customizableEdges14;
-            txtBuscar.Size = new Size(200, 36);
-            txtBuscar.TabIndex = 1;
+            txtBuscarDepto.CustomizableEdges = customizableEdges13;
+            txtBuscarDepto.DefaultText = "";
+            txtBuscarDepto.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
+            txtBuscarDepto.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
+            txtBuscarDepto.DisabledState.ForeColor = Color.FromArgb(138, 138, 138);
+            txtBuscarDepto.DisabledState.PlaceholderForeColor = Color.FromArgb(138, 138, 138);
+            txtBuscarDepto.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
+            txtBuscarDepto.Font = new Font("Segoe UI", 9F);
+            txtBuscarDepto.HoverState.BorderColor = Color.FromArgb(94, 148, 255);
+            txtBuscarDepto.Location = new Point(407, 12);
+            txtBuscarDepto.Name = "txtBuscarDepto";
+            txtBuscarDepto.PlaceholderText = "Buscar por nombre...";
+            txtBuscarDepto.SelectedText = "";
+            txtBuscarDepto.ShadowDecoration.CustomizableEdges = customizableEdges14;
+            txtBuscarDepto.Size = new Size(200, 36);
+            txtBuscarDepto.TabIndex = 1;
+            txtBuscarDepto.KeyDown += txtBuscarDepto_KeyDown;
             // 
-            // btnBuscar
+            // btnBuscarDepto
             // 
-            btnBuscar.BackgroundImage = Properties.Resources.search;
-            btnBuscar.BorderRadius = 15;
-            btnBuscar.CustomizableEdges = customizableEdges15;
-            btnBuscar.DisabledState.BorderColor = Color.DarkGray;
-            btnBuscar.DisabledState.CustomBorderColor = Color.DarkGray;
-            btnBuscar.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
-            btnBuscar.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
-            btnBuscar.FillColor = Color.LightGray;
-            btnBuscar.Font = new Font("Segoe UI", 9F);
-            btnBuscar.ForeColor = Color.FromArgb(45, 45, 48);
-            btnBuscar.Image = Properties.Resources.search;
-            btnBuscar.Location = new Point(357, 12);
-            btnBuscar.Name = "btnBuscar";
-            btnBuscar.ShadowDecoration.CustomizableEdges = customizableEdges16;
-            btnBuscar.Size = new Size(44, 36);
-            btnBuscar.TabIndex = 2;
+            btnBuscarDepto.BackgroundImage = Properties.Resources.search;
+            btnBuscarDepto.BorderRadius = 15;
+            btnBuscarDepto.CustomizableEdges = customizableEdges15;
+            btnBuscarDepto.DisabledState.BorderColor = Color.DarkGray;
+            btnBuscarDepto.DisabledState.CustomBorderColor = Color.DarkGray;
+            btnBuscarDepto.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
+            btnBuscarDepto.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
+            btnBuscarDepto.FillColor = Color.LightGray;
+            btnBuscarDepto.Font = new Font("Segoe UI", 9F);
+            btnBuscarDepto.ForeColor = Color.FromArgb(45, 45, 48);
+            btnBuscarDepto.Image = Properties.Resources.search;
+            btnBuscarDepto.Location = new Point(357, 12);
+            btnBuscarDepto.Name = "btnBuscarDepto";
+            btnBuscarDepto.ShadowDecoration.CustomizableEdges = customizableEdges16;
+            btnBuscarDepto.Size = new Size(44, 36);
+            btnBuscarDepto.TabIndex = 2;
+            btnBuscarDepto.Click += btnBuscarDepto_Click;
             // 
             // btnNuevoDepartamento
             // 
@@ -326,8 +328,8 @@
         private Guna.UI2.WinForms.Guna2Panel guna2Panel1;
         private Guna.UI2.WinForms.Guna2Button btnEditar;
         private Guna.UI2.WinForms.Guna2Button btnEliminar;
-        private Guna.UI2.WinForms.Guna2TextBox txtBuscar;
-        private Guna.UI2.WinForms.Guna2Button btnBuscar;
+        private Guna.UI2.WinForms.Guna2TextBox txtBuscarDepto;
+        private Guna.UI2.WinForms.Guna2Button btnBuscarDepto;
         private Guna.UI2.WinForms.Guna2Button btnNuevoDepartamento;
         private Guna.UI2.WinForms.Guna2Panel pnlEdicion;
         private Guna.UI2.WinForms.Guna2Button btnCancelar;
