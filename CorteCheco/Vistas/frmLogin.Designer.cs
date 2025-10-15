@@ -39,11 +39,14 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             pnlHeader = new Guna.UI2.WinForms.Guna2Panel();
             picLogo = new Guna.UI2.WinForms.Guna2PictureBox();
             txtUsuario = new Guna.UI2.WinForms.Guna2TextBox();
             txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             btnIngresar = new Guna.UI2.WinForms.Guna2Button();
+            btnIrARegistro = new Guna.UI2.WinForms.Guna2Button();
             pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             SuspendLayout();
@@ -137,12 +140,36 @@
             btnIngresar.Text = "INGRESAR";
             btnIngresar.Click += btnIngresar_Click;
             // 
+            // btnIrARegistro
+            // 
+            btnIrARegistro.BorderColor = Color.FromArgb(255, 192, 0);
+            btnIrARegistro.BorderRadius = 15;
+            btnIrARegistro.BorderThickness = 1;
+            btnIrARegistro.CustomizableEdges = customizableEdges11;
+            btnIrARegistro.DisabledState.BorderColor = Color.DarkGray;
+            btnIrARegistro.DisabledState.CustomBorderColor = Color.DarkGray;
+            btnIrARegistro.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
+            btnIrARegistro.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
+            btnIrARegistro.FillColor = Color.Transparent;
+            btnIrARegistro.Font = new Font("Segoe UI", 9F, FontStyle.Underline, GraphicsUnit.Point, 0);
+            btnIrARegistro.ForeColor = Color.FromArgb(255, 192, 0);
+            btnIrARegistro.HoverState.FillColor = Color.FromArgb(255, 192, 0);
+            btnIrARegistro.HoverState.ForeColor = Color.FromArgb(45, 45, 48);
+            btnIrARegistro.Location = new Point(95, 466);
+            btnIrARegistro.Name = "btnIrARegistro";
+            btnIrARegistro.ShadowDecoration.CustomizableEdges = customizableEdges12;
+            btnIrARegistro.Size = new Size(180, 45);
+            btnIrARegistro.TabIndex = 4;
+            btnIrARegistro.Text = "¿No tienes cuenta? Créala aquí";
+            btnIrARegistro.Click += btnIrARegistro_Click;
+            // 
             // frmLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(45, 45, 48);
             ClientSize = new Size(380, 550);
+            Controls.Add(btnIrARegistro);
             Controls.Add(btnIngresar);
             Controls.Add(txtPassword);
             Controls.Add(txtUsuario);
@@ -165,5 +192,6 @@
         private Guna.UI2.WinForms.Guna2TextBox txtUsuario;
         private Guna.UI2.WinForms.Guna2TextBox txtPassword;
         private Guna.UI2.WinForms.Guna2Button btnIngresar;
+        private Guna.UI2.WinForms.Guna2Button btnIrARegistro;
     }
 }

@@ -1,6 +1,7 @@
 using System.Data.SqlClient;
 using CorteCheco.Datos;
 using CorteCheco.Logica;
+using CorteCheco.Vistas;
 
 
 namespace CorteCheco
@@ -63,6 +64,24 @@ namespace CorteCheco
         private void frmLogin_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnIrARegistro_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+
+            // Creamos una instancia del formulario de registro.
+            // Usar 'using' asegura que los recursos del formulario se limpien correctamente.
+            using (frmRegistroUsuarios formRegistro = new frmRegistroUsuarios())
+            {
+                // Mostramos el formulario de registro como un diálogo modal.
+                // El código se detiene aquí y espera hasta que 'formRegistro' se cierre.
+                formRegistro.ShowDialog();
+            }
+
+            // Cuando el usuario cierra el formulario de registro, esta línea se ejecuta.
+            // Volvemos a mostrar el formulario de login para que pueda iniciar sesión.
+            this.Show();
         }
     }
 }

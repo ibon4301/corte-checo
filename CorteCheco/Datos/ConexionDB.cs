@@ -9,7 +9,7 @@ namespace CorteCheco.Datos
     public class ConexionDB
     {
 
-        private readonly string _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CorteChecoDB;Integrated Security=True;Encrypt=False;";
+        private readonly string _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CorteCheco;Integrated Security=True;Encrypt=False";
         #region Usuarios
         public bool ValidarUsuario(string usuario, string password, out string rol, out string nombreUsuario)
         {
@@ -46,6 +46,71 @@ namespace CorteCheco.Datos
                 }
             }
         }
+
+
+        // --- PEGA ESTOS DOS MÉTODOS DENTRO DE TU CLASE ConexionDB ---
+        // --- PUEDEN IR JUSTO DEBAJO DE TU MÉTODO ValidarUsuario ---
+
+        /// <summary>
+        /// Verifica si un nombre de usuario ya existe en la base de datos.
+        /// </summary>
+        /// <param name="nombreUsuario">El nombre de usuario a verificar.</param>
+        /// <returns>True si el usuario ya existe, false en caso contrario.</returns>
+        public bool UsuarioYaExiste(string nombreUsuario)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT COUNT(1) FROM Usuarios WHERE NombreUsuario = @NombreUsuario";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@NombreUsuario", nombreUsuario.Trim());
+                    try
+                    {
+                        con.Open();
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+                        return count > 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al verificar usuario: " + ex.Message, "Error de Base de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inserta un nuevo usuario en la base de datos con el rol fijo 'Usuario' y contraseña en texto plano.
+        /// </summary>
+        /// <param name="nombreUsuario">El nombre del nuevo usuario.</param>
+        /// <param name="contraseña">La contraseña en texto plano.</param>
+        /// <returns>True si el registro fue exitoso, false si falló.</returns>
+        public bool RegistrarUsuario(string nombreUsuario, string contraseña)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                string query = "INSERT INTO Usuarios (NombreUsuario, Password, Rol) VALUES (@NombreUsuario, @Password, 'Usuario')";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@NombreUsuario", nombreUsuario.Trim());
+                    cmd.Parameters.AddWithValue("@Password", contraseña); // Guardamos la contraseña tal cual
+
+                    try
+                    {
+                        con.Open();
+                        int filasAfectadas = cmd.ExecuteNonQuery();
+                        return filasAfectadas > 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al registrar usuario: " + ex.Message, "Error de Base de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+            }
+        }
+
+
         #endregion
 
         #region Productos
