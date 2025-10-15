@@ -26,5 +26,6 @@
             NombreUsuario = null;
             Rol = null;
         }
+
     }
 }

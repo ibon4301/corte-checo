@@ -1,4 +1,6 @@
+Ôªø
 using CorteCheco.Vistas;
+using CorteCheco.Logica; // ‚óÄÔ∏è ¬°IMPORTANTE! A√±ade esta l√≠nea para poder acceder a 'SesionUsuario'.
 
 namespace CorteCheco
 {
@@ -7,28 +9,36 @@ namespace CorteCheco
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
-        // Este es el punto de entrada principal de la aplicaciÛn.
         [STAThread]
         static void Main()
         {
+            // La inicializaci√≥n puede variar seg√∫n la versi√≥n de .NET, tu l√≠nea est√° perfecta.
             ApplicationConfiguration.Initialize();
 
-            // 1. Creamos una "instancia" (una copia en memoria) de nuestro formulario de login.
+            // 1. Creamos una "instancia" de nuestro formulario de login.
             frmLogin loginForm = new frmLogin();
 
-            // 2. Mostramos el formulario de login como un "di·logo".
-            //    Esto es muy importante: el cÛdigo se detendr· aquÌ mismo, esperando a que 
-            //    el formulario de login se cierre antes de continuar.
+            // 2. Mostramos el formulario de login como un "di√°logo".
+            //    El c√≥digo se detiene aqu√≠, esperando a que el login se cierre.
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                // 3. Si el login se cerrÛ devolviendo un resultado de "OK" (que significar· "Èxito"),
-                //    entonces, y solo entonces, procedemos a ejecutar el formulario principal.
-                Application.Run(new CorteCheco.Vistas.frmPrincipal());
+                // 3. Si el login fue exitoso (resultado "OK"), ahora viene la parte nueva:
+                //    LEEMOS EL ROL que guardamos en nuestra clase est√°tica SesionUsuario.
+
+                if (SesionUsuario.Rol == "Administrador")
+                {
+                    // 4a. Si el rol es "Administrador", ejecutamos el formulario principal con todos los controles.
+                    Application.Run(new frmPrincipal());
+                }
+                else
+                {
+                    // 4b. Si el rol es cualquier otra cosa (ej. "Usuario"), ejecutamos el nuevo Dashboard de solo consulta.
+                    Application.Run(new frmPrincipal());
+                }
             }
 
-            // Si el login NO fue exitoso (por ejemplo, el usuario cerrÛ la ventana con la 'X'),
-            // el `if` no se cumple, el mÈtodo Main termina, y la aplicaciÛn se cierra.
-            // °Esto es exactamente lo que queremos!
+            // Si el login NO fue exitoso (el usuario cerr√≥ la ventana o las credenciales eran incorrectas),
+            // el `if` no se cumple, el m√©todo Main termina, y la aplicaci√≥n se cierra limpiamente.
         }
     }
 }

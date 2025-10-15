@@ -137,6 +137,7 @@
             // 
             // txtBuscarDepto
             // 
+            txtBuscarDepto.BorderRadius = 15;
             txtBuscarDepto.CustomizableEdges = customizableEdges13;
             txtBuscarDepto.DefaultText = "";
             txtBuscarDepto.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -249,6 +250,7 @@
             // 
             // txtNombreDepartamento
             // 
+            txtNombreDepartamento.BorderRadius = 15;
             txtNombreDepartamento.CustomizableEdges = customizableEdges5;
             txtNombreDepartamento.DefaultText = "";
             txtNombreDepartamento.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);

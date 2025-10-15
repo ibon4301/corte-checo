@@ -183,12 +183,25 @@ namespace CorteCheco.Vistas
                     return;
                 }
 
+                // =========================================================================
+                // === ¡NUEVA VALIDACIÓN DE IMAGEN OBLIGATORIA AL CREAR! ===
+                // =========================================================================
+                // Solo aplicamos esta regla si estamos en modo de creación (_productoSeleccionado es null)
+                if (_productoSeleccionado == null && picProducto.Image == null)
+                {
+                    MessageBox.Show("Para crear un nuevo producto, es obligatorio seleccionar una imagen.",
+                                    "Imagen Requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return; // Detenemos el proceso de guardado aquí.
+                }
+                // =========================================================================
+
+
                 // 2. PREPARACIÓN DE IMAGEN
                 byte[] imagenParaGuardar = null;
                 if (picProducto.Image != null)
                 {
                     using (var ms = new MemoryStream())
-                    using (var bmp = new Bitmap(picProducto.Image)) // <- CLONAMOS LA IMAGEN
+                    using (var bmp = new Bitmap(picProducto.Image))
                     {
                         bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
                         imagenParaGuardar = ms.ToArray();
@@ -209,7 +222,7 @@ namespace CorteCheco.Vistas
                         Precio = precio,
                         Existencias = existencias,
                         IdDepartamento = Convert.ToInt32(cmbDepartamento.SelectedValue),
-                        Imagen = imagenParaGuardar
+                        Imagen = imagenParaGuardar // Gracias a la validación, sabemos que aquí no será null
                     };
                     exito = _conexionDB.InsertarProducto(productoNuevo);
                 }
@@ -222,26 +235,16 @@ namespace CorteCheco.Vistas
                     _productoSeleccionado.Existencias = existencias;
                     _productoSeleccionado.IdDepartamento = Convert.ToInt32(cmbDepartamento.SelectedValue);
 
-                    if (imagenParaGuardar != null)
+                    // Tu lógica para actualizar la imagen al editar es correcta.
+                    // Si el PictureBox tiene una imagen, la actualizamos.
+                    if (picProducto.Image != null)
                     {
-                        // Se eligió una nueva imagen: la guardamos.
                         _productoSeleccionado.Imagen = imagenParaGuardar;
                     }
-                    else if (picProducto.Image == null)
+                    else // Si el PictureBox está vacío, borramos la imagen.
                     {
-                        // El usuario eliminó la imagen (PictureBox vacío): la quitamos de BD.
                         _productoSeleccionado.Imagen = null;
                     }
-                    else if (_productoSeleccionado.Imagen == null && picProducto.Image != null)
-                    {
-                        using (var ms = new MemoryStream())
-                        using (var bmp = new Bitmap(picProducto.Image)) 
-                        {
-                            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                            _productoSeleccionado.Imagen = ms.ToArray();
-                        }
-                    }
-
 
                     exito = _conexionDB.ActualizarProducto(_productoSeleccionado);
                 }

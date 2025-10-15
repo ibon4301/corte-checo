@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CorteCheco.Logica;
 
 namespace CorteCheco.Vistas
 {
@@ -17,9 +18,29 @@ namespace CorteCheco.Vistas
             InitializeComponent();
         }
 
-        private void frmLogin_Load(object sender, EventArgs e)
+        private void frmPrincipal_Load(object sender, EventArgs e)
         {
+            ConfigurarInterfazPorRol();
+        }
 
+        private void ConfigurarInterfazPorRol()
+        {
+            if (SesionUsuario.Rol == "Usuario")
+            {
+                // --- USUARIO NORMAL ---
+                btnProductos.Visible = false;
+                btnDepartamentos.Visible = false;
+                btnDashboard.Text = "Ver Artículos";
+                AbrirFormularioEnPanel(new frmDashboard());
+            }
+            else // Administrador
+            {
+                // --- ADMINISTRADOR ---
+                btnProductos.Visible = true;
+                btnDepartamentos.Visible = true;
+                btnDashboard.Visible = true;
+                AbrirFormularioEnPanel(new frmProductos());
+            }
         }
 
         private void pnlContenedor_Paint(object sender, PaintEventArgs e)
@@ -56,6 +77,29 @@ namespace CorteCheco.Vistas
         private void btnDepartamentos_Click(object sender, EventArgs e)
         {
             AbrirFormularioEnPanel(new frmDepartamento());
+        }
+
+        private void btnDashboard_Click(object sender, EventArgs e)
+        {
+            AbrirFormularioEnPanel(new frmDashboard());
+        }
+
+        private void btnCerrarSesion_Click(object sender, EventArgs e)
+        {
+            DialogResult resultado = MessageBox.Show("¿Estás seguro de que quieres cerrar la sesión?",
+                                             "Confirmar Cierre de Sesión",
+                                             MessageBoxButtons.YesNo,
+                                             MessageBoxIcon.Question);
+
+            // Si el usuario hace clic en "Sí"...
+            if (resultado == DialogResult.Yes)
+            {
+                // 1. Limpiamos los datos de la sesión actual.
+                SesionUsuario.CerrarSesion();
+
+                // 2. Reiniciamos la aplicación.
+                Application.Restart();
+            }
         }
     }
 }

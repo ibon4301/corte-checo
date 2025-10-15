@@ -176,6 +176,7 @@
             // 
             // txtBuscar
             // 
+            txtBuscar.BorderRadius = 15;
             txtBuscar.CustomizableEdges = customizableEdges5;
             txtBuscar.DefaultText = "";
             txtBuscar.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -256,6 +257,7 @@
             // cmbDepartamento
             // 
             cmbDepartamento.BackColor = Color.Transparent;
+            cmbDepartamento.BorderRadius = 15;
             cmbDepartamento.CustomizableEdges = customizableEdges13;
             cmbDepartamento.DrawMode = DrawMode.OwnerDrawFixed;
             cmbDepartamento.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -272,6 +274,7 @@
             // 
             // txtExistencias
             // 
+            txtExistencias.BorderRadius = 15;
             txtExistencias.CustomizableEdges = customizableEdges15;
             txtExistencias.DefaultText = "";
             txtExistencias.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -341,6 +344,7 @@
             // 
             // txtPrecio
             // 
+            txtPrecio.BorderRadius = 15;
             txtPrecio.CustomizableEdges = customizableEdges23;
             txtPrecio.DefaultText = "";
             txtPrecio.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -360,6 +364,7 @@
             // 
             // txtDescripcion
             // 
+            txtDescripcion.BorderRadius = 15;
             txtDescripcion.CustomizableEdges = customizableEdges25;
             txtDescripcion.DefaultText = "";
             txtDescripcion.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -380,6 +385,7 @@
             // 
             // txtNombre
             // 
+            txtNombre.BorderRadius = 15;
             txtNombre.CustomizableEdges = customizableEdges27;
             txtNombre.DefaultText = "";
             txtNombre.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -399,6 +405,7 @@
             // 
             // txtCodigo
             // 
+            txtCodigo.BorderRadius = 15;
             txtCodigo.CustomizableEdges = customizableEdges29;
             txtCodigo.DefaultText = "";
             txtCodigo.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
